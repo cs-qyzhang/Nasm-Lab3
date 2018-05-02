@@ -1,0 +1,4 @@
+*.o
+*.lst
+Nasm-Lab3
+.directory
