@@ -17,7 +17,7 @@ endstruc
 ;==========================================================================================
 section .data
 welcomeMsg	db "Welcome to Shop Manage System!", 0x0a, 0x00
-
+pie		db "water", 0x00
 changeFlag1:
 %rep	GOODSNUM
 	db  1
@@ -27,31 +27,39 @@ changeFlag2:
 %rep	GOODSNUM
 	db 1
 %endrep
-;==========================================================================================
-section .bss
+
 shop1:
 %rep GOODSNUM
 istruc  Goods
-		at Goods.goodsName,     resb 12
-		at Goods.inPrice,       resd 1
-		at Goods.outPrice,      resd 1
-		at Goods.quantity,      resd 1
-		at Goods.sold,          resd 1
-		at Goods.profitRate,    resd 1
+		at Goods.goodsName,     times 12 db 0
+		at Goods.inPrice,       dd 0
+		at Goods.outPrice,      dd 0
+		at Goods.quantity,      dd 0
+		at Goods.sold,          dd 0
+		at Goods.profitRate,    dd 0
 iend
 %endrep
 ;--------------------------------
 shop2:
 %rep GOODSNUM
 istruc  Goods
-		at Goods.goodsName,     resb 12
-		at Goods.inPrice,       resd 1
-		at Goods.outPrice,      resd 1
-		at Goods.quantity,      resd 1
-		at Goods.sold,          resd 1
-		at Goods.profitRate,    resd 1
+		at Goods.goodsName,     times 12 db 0
+		at Goods.inPrice,       dd 0
+		at Goods.outPrice,      dd 0
+		at Goods.quantity,      dd 0
+		at Goods.sold,          dd 0
+		at Goods.profitRate,    dd 0
 iend
 %endrep
+global	ptrShop1, ptrShop2
+
+ptrShop1	dd shop1
+ptrShop2	dd shop2
+
+fileName	db "data.dat", 0
+;==========================================================================================
+section .bss
+
 ;==========================================================================================
 section .text
 	global	main
@@ -64,6 +72,12 @@ main:
 
 	push	welcomeMsg
 	call	printf
+
+	push	fileName
+	call	ReadData
+
+	push	pie
+	call	FindGoods
 
 	mov	eax, 0x01
 	mov	ebx, 0
@@ -91,12 +105,20 @@ FindGoods:
 	mov	es, eax
 	mov	ebx, 0			;初始化位置信息
 	mov	edx, GOODSNUM
-	.LOOPA:	mov	edi, [ebp + 8]	;将商品名的首地址赋值给edi
-		lea	esi, [shop1 + ebx + Goods.goodsName]	;将shop1商品名称的首地址赋值给esi
+	mov	edi, [ebp + 8]		;将商品名的首地址赋值给edi
+	.LOOPA:
+		mov	esi, ebx	;将shop1商品名称的首地址赋值给esi
+		imul	esi, GOODSLENGTH
+		add	esi, shop1
 		push	esi
 		call	strlen
+		add	esp, 4
+
 		mov	ecx, eax	;将商品名字符串长度赋值给ecx，即比较ecx次判断字符串长度是否相等
+		mov	eax, esi
+		push	edi
 		repz	cmpsb
+		pop	edi
 		jne	.N1		;不相等，跳到N1继续循环
 		jmp	.N2		;字符串相等，跳到N2返回位置信息eax并返回主函数
 

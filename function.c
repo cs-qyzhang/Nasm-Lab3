@@ -11,8 +11,10 @@ struct Goods
     int  profitRate;
 };
 
-extern struct Goods * shop1;
-extern struct Goods * shop2;
+extern int ptrShop1;
+extern int ptrShop2;
+
+struct Goods *shop1, *shop2;
 
 #define GOODSNUM    30
 #define GOODSLENGTH 32
@@ -21,6 +23,8 @@ extern struct Goods * shop2;
 
 int ReadData(const char *fileName)
 {
+    shop1 = (struct Goods *)ptrShop1;
+    shop2 = (struct Goods *)ptrShop2;
     FILE *fp;
     fp = fopen(fileName, "r");
     if (fp == NULL)
