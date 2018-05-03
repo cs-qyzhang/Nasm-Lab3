@@ -16,12 +16,12 @@ endstruc
 %define	GOODSLENGTH	32
 ;==========================================================================================
 section .data
-welcomeMsg	db "Welcome to Shop Manage System!", 0x0a, 0x00
 rankPos:
 %rep	GOODSNUM
 	db 0
 %endrep
 changeFlag1:
+
 %rep	GOODSNUM
 	db  1
 %endrep
@@ -65,11 +65,9 @@ section .bss
 
 ;==========================================================================================
 section .text
+	global	FindGoods
 	extern	strlen
 	extern	printf
-	extern	scanf
-	extern	ReadData
-
 ; -------------------------------------
 ; 函数名称：FindGoods
 ; 函数功能：查找商品在商店中的位置
@@ -82,7 +80,6 @@ FindGoods:
 	mov	ebp, esp
 	push	ebx
 	push	ecx
-	push	edx
 	push	esi			;保护现场
 	push	edi
 	push	es
@@ -90,7 +87,6 @@ FindGoods:
 	mov	eax, ds
 	mov	es, eax
 	mov	ebx, 0			;初始化位置信息
-	mov	edx, GOODSNUM
 	mov	edi, [ebp + 8]		;将商品名的首地址赋值给edi
 	.LOOPA:
 		mov	esi, ebx	;将shop1商品名称的首地址赋值给esi
@@ -110,15 +106,14 @@ FindGoods:
 		jmp	.N2		;字符串相等，跳到N2返回位置信息eax并返回主函数
 
 	.N1:	inc	ebx		;位置信息加一
-		dec	edx
+		cmp	ebx, GOODSNUM
 		jnz	.LOOPA
 		mov	ebx, -1
 	.N2:	mov	eax, ebx
 
 	pop	es
 	pop	edi
-	pop	esi
-	pop	edx			;恢复现场
+	pop	esi			;恢复现场
 	pop	ecx
 	pop	ebx
 	pop	ebp
