@@ -65,7 +65,7 @@ section .bss
 
 ;==========================================================================================
 section .text
-	global	FindGoods
+	global	FindGoods, CalcuProfit, ChangeGoods, Ranking
 	extern	strlen
 	extern	printf
 ; -------------------------------------
@@ -214,14 +214,15 @@ ChangeGoods:
 	mov	ecx, [ebp + 12]		;pos
 	mov	edx, [ebp + 8]		;goodsChange
 
+	imul	ecx, GOODSLENGTH
+
 	cmp	ebx, 1			;判断是修改shop1还是shop2里面的商品信息
 	je	.N1
 	cmp	ebx, 2
 	je	.N2
 	jmp	.N3
 	
-	.N1:	mov	esi, [edx + Goods.goodsName]
-		mov	[shop1 + ecx + Goods.goodsName], esi
+	.N1:	
 		mov	esi, [edx + Goods.inPrice]
 		mov	[shop1 + ecx + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]
@@ -234,8 +235,7 @@ ChangeGoods:
 		mov	[shop1 + ecx + Goods.profitRate], esi
 		jmp	.N3
 
-	.N2:	mov	esi, [edx + Goods.goodsName]
-		mov	[shop2 + ecx + Goods.goodsName], esi
+	.N2:	
 		mov	esi, [edx + Goods.inPrice]
 		mov	[shop2 + ecx + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]

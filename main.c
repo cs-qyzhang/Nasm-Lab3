@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 struct Goods
@@ -15,6 +16,8 @@ extern int ptrShop1;
 extern int ptrShop2;
 
 struct Goods *shop1, *shop2;
+const char bossName[] = "qyzhang";
+const char password[] = "1q2w3e4r";
 
 #define GOODSNUM    30
 #define GOODSLENGTH 32
@@ -34,7 +37,9 @@ void Change(int, int);
 void CaculateProfitRate(void);
 void CaculateRanking(void);
 
-extern int FindGoods(char *name);
+extern int  FindGoods(char *name);
+extern void CalcuProfit(void);
+extern void ChangeGoods(struct Goods *, int shop, int pos);
 
 int main(void)
 {
@@ -47,8 +52,8 @@ int main(void)
         return 0;
     }
 
-    int isLogin = TRUE;
-    //isLogin = Login();
+    int isLogin;
+    isLogin = Login();
     int select;
     int pos;
     int shop;
@@ -248,7 +253,24 @@ int Find()
 
 void Change(int shop, int pos)
 {
-
+    struct Goods *p, *prev;
+    if (shop == 1)
+        prev = shop1;
+    else
+        prev = shop2;
+    prev += pos;
+    p = (struct Goods *)malloc(sizeof(struct Goods));
+    printf("请输入修改的信息：\n");
+    printf("%10s%10d < ", "进货价：", prev->inPrice);
+    scanf("%d", &(p->inPrice));
+    printf("%10s%10d < ", "销售价：", prev->outPrice);
+    scanf("%d", &(p->outPrice));
+    printf("%10s%8d < ", "进货数量：", prev->quantity);
+    scanf("%d", &(p->quantity));
+    printf("%10s%8d < ", "已售数量：", prev->sold);
+    scanf("%d", &(p->sold));
+    ChangeGoods(p, pos, shop);
+    return;
 }
 
 void CaculateProfitRate()
@@ -263,5 +285,33 @@ void CaculateRanking()
 
 int Login()
 {
-
+    int isLogin = TRUE;
+    printf("是否登录？（Y/N）");
+    char c = getchar();
+    getchar();
+    if (c == 'y' || c == 'Y')
+    {
+        char buf[12];
+        printf("请输入用户名：");
+        scanf("%s", buf);
+        getchar();
+        if (strcmp(buf, bossName) != 0)
+            isLogin = FALSE;
+        printf("请输入密码：");
+        scanf("%s", buf);
+        getchar();
+        if (isLogin == TRUE && strcmp(buf, password) == 0)
+        {
+            printf("登录成功！\n");
+            return TRUE;
+        }
+        else
+        {
+            printf("登录失败！以顾客身份登录！\n");
+            return FALSE;
+        }
+    }
+    else
+        return FALSE;
 }
+
