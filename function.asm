@@ -16,21 +16,24 @@ endstruc
 %define	GOODSLENGTH	32
 ;==========================================================================================
 section .data
-global	rankPtr
+global	rankPtr, changedFlag1, changedFlag2
 rankPtr	dd rankPos
+changedFlag1 dd changeFlag1
+changedFlag2 dd changeFlag2
+
 rankPos:
 %rep	GOODSNUM
 	dd 0
 %endrep
-changeFlag1:
 
+changeFlag1:
 %rep	GOODSNUM
-	db  1
+	dd  1
 %endrep
 
 changeFlag2:
 %rep	GOODSNUM
-	db 1
+	dd 1
 %endrep
 
 shop1:
@@ -143,7 +146,7 @@ CalcuProfit:
 	.loop1:	mov	edi, ebx
 		imul	edi, GOODSLENGTH
 
-		cmp	byte [changeFlag1 + ebx], 0
+		cmp	dword [changeFlag1 + ebx], 0
 		je	.N1
 		mov	eax, [shop1 + edi + Goods.inPrice]		;将商品的进货价赋值给eax
 		mov	edx, [shop1 + edi + Goods.quantity]		;将商品的进货总数赋值给edx
@@ -174,7 +177,7 @@ CalcuProfit:
 		imul	edi, GOODSLENGTH
 		
 
-		cmp	byte [changeFlag2 + ebx], 0
+		cmp	dword [changeFlag2 + ebx], 0
 		je	.N2
 		mov	eax, [shop2 + edi + Goods.inPrice]		;将商品的进货价赋值给eax
 		mov	edx, [shop2 + edi + Goods.quantity]		;将商品的进货总数赋值给edx
@@ -228,41 +231,38 @@ ChangeGoods:
 	mov	ecx, [ebp + 12]		;pos
 	mov	edx, [ebp + 8]		;goodsChange
 
+	imul	ecx, GOODSLENGTH
+
 	cmp	ebx, 1			;判断是修改shop1还是shop2里面的商品信息
 	je	.N1
 	cmp	ebx, 2
 	je	.N2
 	jmp	.N3
 	
-	.N1:	mov	edi, ecx
-		imul	edi, GOODSLENGTH
-
-		mov	esi, [edx + Goods.goodsName]
-		mov	[shop1 + edi + Goods.goodsName], esi
+	.N1:	
 		mov	esi, [edx + Goods.inPrice]
-		mov	[shop1 + edi + Goods.inPrice], esi
+		mov	[shop1 + ecx + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]
-		mov	[shop1 + edi + Goods.outPrice], esi
+		mov	[shop1 + ecx + Goods.outPrice], esi
 		mov	esi, [edx + Goods.quantity]
-		mov	[shop1 + edi + Goods.quantity], esi
+		mov	[shop1 + ecx + Goods.quantity], esi
 		mov	esi, [edx + Goods.sold]
-		mov	[shop1 + edi + Goods.sold], esi
+		mov	[shop1 + ecx + Goods.sold], esi
 		mov	esi, [edx + Goods.profitRate]
-		mov	[shop1 + edi + Goods.profitRate], esi
+		mov	[shop1 + ecx + Goods.profitRate], esi
 		jmp	.N3
 
-	.N2:	mov	esi, [edx + Goods.goodsName]
-		mov	[shop2 + edi + Goods.goodsName], esi
+	.N2:	
 		mov	esi, [edx + Goods.inPrice]
-		mov	[shop2 + edi + Goods.inPrice], esi
+		mov	[shop2 + ecx + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]
-		mov	[shop2 + edi + Goods.outPrice], esi
+		mov	[shop2 + ecx + Goods.outPrice], esi
 		mov	esi, [edx + Goods.quantity]
-		mov	[shop2 + edi + Goods.quantity], esi
+		mov	[shop2 + ecx + Goods.quantity], esi
 		mov	esi, [edx + Goods.sold]
-		mov	[shop2 + edi + Goods.sold], esi
+		mov	[shop2 + ecx + Goods.sold], esi
 		mov	esi, [edx + Goods.profitRate]
-		mov	[shop2 + edi + Goods.profitRate], esi
+		mov	[shop2 + ecx + Goods.profitRate], esi
 
 	.N3:	pop	es
 		pop	edi
