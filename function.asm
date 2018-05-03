@@ -16,19 +16,24 @@ endstruc
 %define	GOODSLENGTH	32
 ;==========================================================================================
 section .data
+global	rankPtr, changedFlag1, changedFlag2
+rankPtr	dd rankPos
+changedFlag1 dd changeFlag1
+changedFlag2 dd changeFlag2
+
 rankPos:
 %rep	GOODSNUM
-	db 0
+	dd 0
 %endrep
-changeFlag1:
 
+changeFlag1:
 %rep	GOODSNUM
-	db  1
+	dd  1
 %endrep
 
 changeFlag2:
 %rep	GOODSNUM
-	db 1
+	dd 1
 %endrep
 
 shop1:
@@ -141,7 +146,7 @@ CalcuProfit:
 	.loop1:	mov	edi, ebx
 		imul	edi, GOODSLENGTH
 
-		cmp	byte [changeFlag1 + ebx], 0
+		cmp	dword [changeFlag1 + ebx], 0
 		je	.N1
 		mov	eax, [shop1 + edi + Goods.inPrice]		;将商品的进货价赋值给eax
 		mov	edx, [shop1 + edi + Goods.quantity]		;将商品的进货总数赋值给edx
@@ -172,7 +177,7 @@ CalcuProfit:
 		imul	edi, GOODSLENGTH
 		
 
-		cmp	byte [changeFlag2 + ebx], 0
+		cmp	dword [changeFlag2 + ebx], 0
 		je	.N2
 		mov	eax, [shop2 + edi + Goods.inPrice]		;将商品的进货价赋值给eax
 		mov	edx, [shop2 + edi + Goods.quantity]		;将商品的进货总数赋值给edx
@@ -236,28 +241,28 @@ ChangeGoods:
 	
 	.N1:	
 		mov	esi, [edx + Goods.inPrice]
-		mov	[shop1 + edi + Goods.inPrice], esi
+		mov	[shop1 + ecx + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]
-		mov	[shop1 + edi + Goods.outPrice], esi
+		mov	[shop1 + ecx + Goods.outPrice], esi
 		mov	esi, [edx + Goods.quantity]
-		mov	[shop1 + edi + Goods.quantity], esi
+		mov	[shop1 + ecx + Goods.quantity], esi
 		mov	esi, [edx + Goods.sold]
-		mov	[shop1 + edi + Goods.sold], esi
+		mov	[shop1 + ecx + Goods.sold], esi
 		mov	esi, [edx + Goods.profitRate]
-		mov	[shop1 + edi + Goods.profitRate], esi
+		mov	[shop1 + ecx + Goods.profitRate], esi
 		jmp	.N3
 
 	.N2:	
 		mov	esi, [edx + Goods.inPrice]
-		mov	[shop2 + edi + Goods.inPrice], esi
+		mov	[shop2 + ecx + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]
-		mov	[shop2 + edi + Goods.outPrice], esi
+		mov	[shop2 + ecx + Goods.outPrice], esi
 		mov	esi, [edx + Goods.quantity]
-		mov	[shop2 + edi + Goods.quantity], esi
+		mov	[shop2 + ecx + Goods.quantity], esi
 		mov	esi, [edx + Goods.sold]
-		mov	[shop2 + edi + Goods.sold], esi
+		mov	[shop2 + ecx + Goods.sold], esi
 		mov	esi, [edx + Goods.profitRate]
-		mov	[shop2 + edi + Goods.profitRate], esi
+		mov	[shop2 + ecx + Goods.profitRate], esi
 
 	.N3:	pop	es
 		pop	edi
@@ -272,10 +277,10 @@ ChangeGoods:
 ; 函数功能：将SHOP2中的商品的利润率排序
 ; 入口参数：无
 ; 出口参数：无
-; 现场保护：esp, ebx, ecx, edx, esi, edi, es
+; 现场保护：ebp, ebx, ecx, edx, esi, edi, es
 ;--------------------------------------
 Ranking:
-	push	esp
+	push	ebp
 	push	ebx
 	push	ecx
 	push	edx
@@ -283,45 +288,12 @@ Ranking:
 	push	edi
 	push	es
 
-	mov	eax, ds
-	mov	es, eax
-	mov	ebx, 1				;ebx记录排序进行到第几个商品,从第1个开始
-	mov	ecx, GOODSNUM			;将ecx设为shop2中商品的数量
-	.loop1:	mov	edx, ebx		;edx记录商品正在与rankPos中利润率排第几的商品的利润率进行比较
-		.loop2:	mov	esp, edx
-			dec	esp
-			imul	esp, GOODSLENGTH
-			mov	esi, [rankPos + esp]	;获得在rankPos中已排序好的商品的位置信息
-			mov	esp, esi
-			imul	esp, GOODSLENGTH
-			mov	edi, [shop2 + esp + Goods.profitRate]
-			mov	esp, ebx
-			imul	esp, GOODSLENGTH
-			cmp	[shop2 + esp + Goods.profitRate], edi		;将商品的利润率与已排序好的商品的利润率进行比较
-			jl	.N1						;被比较的商品的利润率小于已排序的商品的利润率，结束比较
-			dec	edx
-			jnz	.loop2					;结果是获得商品应在rankPos中放第几个
-		;被比较的商品的位置信息ebx放入rankPos[edx]中，其它位置都往后移一个单位
-		.N1	mov	esi, ebx
-		.loop3:	mov	esp, esi
-			dec	esp
-			imul	esp, GOODSLENGTH
-			mov	edi, [rankPos + esp]
-			mov	[rankPos + esp - 32], edi
-			dec	esi
-			cmp	edx, esi
-			jl	.loop3
-		mov	[rankPos + esp - 32], ebx
-		
-		inc	ebx
-		dec	ecx
-		jnz	.loop1
 
-	pop	esp
 	pop	es
 	pop	edi
 	pop	esi
 	pop	edx			;恢复现场
 	pop	ecx
 	pop	ebx
+	pop	ebp
 	ret

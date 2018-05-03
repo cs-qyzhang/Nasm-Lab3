@@ -14,6 +14,9 @@ struct Goods
 
 extern int ptrShop1;
 extern int ptrShop2;
+extern int *rankPtr;
+extern int *changedFlag1;
+extern int *changedFlag2;
 
 struct Goods *shop1, *shop2;
 const char bossName[] = "qyzhang";
@@ -34,12 +37,12 @@ void ShowInfo(int, int);
 void NoFound(void);
 int  Find(void);
 void Change(int, int);
-void CaculateProfitRate(void);
-void CaculateRanking(void);
+void RankingProfitRate();
 
 extern int  FindGoods(char *name);
 extern void CalcuProfit(void);
 extern void ChangeGoods(struct Goods *, int shop, int pos);
+extern void Ranking(void);
 
 int main(void)
 {
@@ -105,7 +108,9 @@ int main(void)
             putchar('\n');
             break;
         case 4: //计算平均利润率排名
-            Ranking();
+            RankingProfitRate();
+            for (i = 0; i < GOODSNUM; i++)
+                printf("%d ", rankPtr[i]);
             printf("成功！按任意键继续。");
             getchar();
             putchar('\n');
@@ -113,7 +118,7 @@ int main(void)
         case 5: //输出全部商品信息
             ShowTitle();
             for (i = 0; i < GOODSNUM; i++)
-                ShowInfo(1, i);
+                ShowInfo(1, rankPtr[i]);
             for (i = 0; i < GOODSNUM; i++)
                 ShowInfo(2, i);
             printf("按任意键继续。");
@@ -255,9 +260,15 @@ void Change(int shop, int pos)
 {
     struct Goods *p, *prev;
     if (shop == 1)
+    {
         prev = shop1;
+        changedFlag1[pos] = 1;
+    }
     else
+    {
         prev = shop2;
+        changedFlag2[pos] = 1;
+    }
     prev += pos;
     p = (struct Goods *)malloc(sizeof(struct Goods));
     printf("请输入修改的信息：\n");
@@ -271,16 +282,6 @@ void Change(int shop, int pos)
     scanf("%d", &(p->sold));
     ChangeGoods(p, pos, shop);
     return;
-}
-
-void CaculateProfitRate()
-{
-
-}
-
-void CaculateRanking()
-{
-
 }
 
 int Login()
@@ -315,3 +316,39 @@ int Login()
         return FALSE;
 }
 
+void RankingProfitRate()
+{
+    int flag[GOODSNUM];
+    int *result = rankPtr;
+    int i;
+    for (i = 0; i < GOODSNUM; i++)
+    {
+        flag[i] = 0;
+        result[i] = 0;
+    }
+    for (i = 0; i < GOODSNUM; i++)
+    {
+        int maxPos = 0;
+        int nowPos = 0;
+        while (flag[maxPos])
+        {
+            maxPos++;
+            continue;
+        }
+        nowPos = maxPos + 1;
+        while (nowPos < GOODSNUM)
+        {
+            
+            if (flag[nowPos])
+            {
+                nowPos++;
+                continue;
+            }
+            if (shop1[nowPos].profitRate > shop1[maxPos].profitRate)
+                maxPos = nowPos;
+            nowPos++;
+        }
+        flag[maxPos] = 1;
+        result[i] = maxPos;
+    }
+}
