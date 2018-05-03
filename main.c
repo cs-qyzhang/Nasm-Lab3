@@ -13,6 +13,7 @@ struct Goods
 
 extern int ptrShop1;
 extern int ptrShop2;
+extern int *rankPtr;
 
 struct Goods *shop1, *shop2;
 
@@ -103,6 +104,8 @@ int main(void)
             break;
         case 4: //计算平均利润率排名
             Ranking();
+            for (i = 0; i < GOODSNUM; i++)
+                printf("%d ", rankPtr[i]);
             printf("成功！按任意键继续。");
             getchar();
             putchar('\n');

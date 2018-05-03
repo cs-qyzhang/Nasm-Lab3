@@ -16,9 +16,11 @@ endstruc
 %define	GOODSLENGTH	32
 ;==========================================================================================
 section .data
+global	rankPtr
+rankPtr	dd rankPos
 rankPos:
 %rep	GOODSNUM
-	db 0
+	dd 0
 %endrep
 changeFlag1:
 
@@ -275,10 +277,10 @@ ChangeGoods:
 ; 函数功能：将SHOP2中的商品的利润率排序
 ; 入口参数：无
 ; 出口参数：无
-; 现场保护：esp, ebx, ecx, edx, esi, edi, es
+; 现场保护：ebp, ebx, ecx, edx, esi, edi, es
 ;--------------------------------------
 Ranking:
-	push	esp
+	push	ebp
 	push	ebx
 	push	ecx
 	push	edx
@@ -291,40 +293,46 @@ Ranking:
 	mov	ebx, 1				;ebx记录排序进行到第几个商品,从第1个开始
 	mov	ecx, GOODSNUM			;将ecx设为shop2中商品的数量
 	.loop1:	mov	edx, ebx		;edx记录商品正在与rankPos中利润率排第几的商品的利润率进行比较
-		.loop2:	mov	esp, edx
-			dec	esp
-			imul	esp, GOODSLENGTH
-			mov	esi, [rankPos + esp]	;获得在rankPos中已排序好的商品的位置信息
-			mov	esp, esi
-			imul	esp, GOODSLENGTH
-			mov	edi, [shop2 + esp + Goods.profitRate]
-			mov	esp, ebx
-			imul	esp, GOODSLENGTH
-			cmp	[shop2 + esp + Goods.profitRate], edi		;将商品的利润率与已排序好的商品的利润率进行比较
-			jl	.N1						;被比较的商品的利润率小于已排序的商品的利润率，结束比较
+		.loop2:	mov	ebp, edx
+			dec	ebp
+			imul	ebp, 4
+			mov	esi, [rankPos + ebp]	;获得在rankPos中已排序好的商品的位置信息
+			mov	ebp, esi
+			imul	ebp, GOODSLENGTH
+			mov	edi, [shop2 + ebp + Goods.profitRate]
+			mov	ebp, ebx
+			imul	ebp, GOODSLENGTH
+			cmp	[shop2 + ebp + Goods.profitRate], edi		;将商品的利润率与已排序好的商品的利润率进行比较
+			jnge	.N1						;被比较的商品的利润率小于已排序的商品的利润率，结束比较
 			dec	edx
 			jnz	.loop2					;结果是获得商品应在rankPos中放第几个
 		;被比较的商品的位置信息ebx放入rankPos[edx]中，其它位置都往后移一个单位
-		.N1	mov	esi, ebx
-		.loop3:	mov	esp, esi
-			dec	esp
-			imul	esp, GOODSLENGTH
-			mov	edi, [rankPos + esp]
-			mov	[rankPos + esp - 32], edi
+		.N1:	mov	esi, ebx
+		.loop3:	cmp	ebx, edx
+			je	.N2
+			mov	ebp, esi
+			dec	ebp
+			imul	ebp, 4
+			mov	edi, [rankPos + ebp]
+			mov	[rankPos + ebp + 4], edi
 			dec	esi
 			cmp	edx, esi
-			jl	.loop3
-		mov	[rankPos + esp - 32], ebx
+			jnge	.loop3
+			mov	[rankPos + ebp], ebx
+			jmp	.N3
+		.N2:	mov	ebp, esi
+			imul	ebp, 4
+			mov	[rankPos + ebp], ebx
 		
-		inc	ebx
+	.N3:	inc	ebx
 		dec	ecx
 		jnz	.loop1
 
-	pop	esp
 	pop	es
 	pop	edi
 	pop	esi
 	pop	edx			;恢复现场
 	pop	ecx
 	pop	ebx
+	pop	ebp
 	ret
