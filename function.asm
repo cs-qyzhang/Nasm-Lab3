@@ -17,8 +17,9 @@ endstruc
 ;==========================================================================================
 section .data
 welcomeMsg	db "Welcome to Shop Manage System!", 0x0a, 0x00
-pie		db "water", 0x00
+
 changeFlag1:
+
 %rep	GOODSNUM
 	db  1
 %endrep
@@ -62,28 +63,9 @@ section .bss
 
 ;==========================================================================================
 section .text
-	global	main
+	global	FindGoods
 	extern	strlen
 	extern	printf
-	extern	ReadData
-main:
-	mov	eax, ds
-	mov	es, eax
-
-	push	welcomeMsg
-	call	printf
-
-	push	fileName
-	call	ReadData
-
-	push	pie
-	call	FindGoods
-
-	mov	eax, 0x01
-	mov	ebx, 0
-	int	0x80
-	ret
-;==========================================================================================
 ; -------------------------------------
 ; 函数名称：FindGoods
 ; 函数功能：查找商品在商店中的位置
@@ -105,7 +87,7 @@ FindGoods:
 	mov	es, eax
 	mov	ebx, 0			;初始化位置信息
 	mov	edx, GOODSNUM
-	mov	edi, [ebp + 8]		;将商品名的首地址赋值给edi
+	mov	edi, [ebp + 12]		;将商品名的首地址赋值给edi
 	.LOOPA:
 		mov	esi, ebx	;将shop1商品名称的首地址赋值给esi
 		imul	esi, GOODSLENGTH
@@ -135,4 +117,4 @@ FindGoods:
 	pop	ecx
 	pop	ebx
 	pop	ebp
-	ret	4
+	ret
