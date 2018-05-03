@@ -99,13 +99,13 @@ int main(void)
             Change(shop, pos);
             break;
         case 3: //计算平均利润率
-            CaculateProfitRate();
+            CalcuProfit();
             printf("成功！按任意键继续。");
             getchar();
             putchar('\n');
             break;
         case 4: //计算平均利润率排名
-            CaculateRanking();
+            Ranking();
             printf("成功！按任意键继续。");
             getchar();
             putchar('\n');

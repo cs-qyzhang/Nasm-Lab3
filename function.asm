@@ -89,7 +89,7 @@ FindGoods:
 	mov	ebx, 0			;初始化位置信息
 	mov	edi, [ebp + 8]		;将商品名的首地址赋值给edi
 	.LOOPA:
-		mov	esi, ebx	;将shop1商品名称的首地址赋值给esi
+		mov	esi, ebx
 		imul	esi, GOODSLENGTH
 		add	esi, shop1
 		push	esi
@@ -138,47 +138,59 @@ CalcuProfit:
 	mov	ebx, 0
 	mov	ecx, GOODSNUM
 	;更新shop1中商品的利润率
-	.loop1:	cmp	byte [changeFlag1 + ebx], 0
+	.loop1:	mov	edi, ebx
+		imul	edi, GOODSLENGTH
+
+		cmp	byte [changeFlag1 + ebx], 0
 		je	.N1
-		mov	eax, [shop1 + ebx + Goods.inPrice]		;将商品的进货价赋值给eax
-		mov	edx, [shop1 + ebx + Goods.quantity]		;将商品的进货总数赋值给edx
+		mov	eax, [shop1 + edi + Goods.inPrice]		;将商品的进货价赋值给eax
+		mov	edx, [shop1 + edi + Goods.quantity]		;将商品的进货总数赋值给edx
 		mul	edx
 		push	eax
 
-		mov	eax, [shop1 + ebx + Goods.outPrice]		;将商品的销售价赋值给eax
-		mov	edx, [shop1 + ebx + Goods.sold]		;将商品的已售数量赋值给edx
+		mov	eax, [shop1 + edi + Goods.outPrice]		;将商品的销售价赋值给eax
+		mov	edx, [shop1 + edi + Goods.sold]		;将商品的已售数量赋值给edx
 		mul	edx
 		push	eax
 
 		pop	eax				;取出销售价乘以已售数量
-		pop	edx				;取出进货价乘以进货总数
-		sub	eax, edx			;销售价乘以已售数量-进货价乘以进货总数->eax
-		idiv	edx
-		mov	[shop1 + ebx + Goods.profitRate], eax
+		pop	esi				;取出进货价乘以进货总数
+		sub	eax, esi			;销售价乘以已售数量-进货价乘以进货总数->eax
+		imul	eax, 100
+		cdq
+		idiv	esi
+		mov	[shop1 + edi + Goods.profitRate], eax
 
 	.N1:	inc	ebx
 		dec	ecx
 		jnz	.loop1
 
 	mov	ebx, 0
+	mov	ecx, GOODSNUM
 	;更新shop2中商品的利润率
-	.loop2:	cmp	byte [changeFlag1 + ebx], 0
+	.loop2:	mov	edi, ebx
+		imul	edi, GOODSLENGTH
+		
+
+		cmp	byte [changeFlag2 + ebx], 0
 		je	.N2
-		mov	eax, [shop2 + ebx + Goods.inPrice]		;将商品的进货价赋值给eax
-		mov	edx, [shop2 + ebx + Goods.quantity]		;将商品的进货总数赋值给edx
+		mov	eax, [shop2 + edi + Goods.inPrice]		;将商品的进货价赋值给eax
+		mov	edx, [shop2 + edi + Goods.quantity]		;将商品的进货总数赋值给edx
 		mul	edx
 		push	eax
 
-		mov	eax, [shop2 + ebx + Goods.outPrice]		;将商品的销售价赋值给eax
-		mov	edx, [shop2 + ebx + Goods.sold]		;将商品的已售数量赋值给edx
+		mov	eax, [shop2 + edi + Goods.outPrice]		;将商品的销售价赋值给eax
+		mov	edx, [shop2 + edi + Goods.sold]		;将商品的已售数量赋值给edx
 		mul	edx
 		push	eax
 
 		pop	eax				;取出销售价乘以已售数量
-		pop	edx				;取出进货价乘以进货总数
-		sub	eax, edx			;销售价乘以已售数量-进货价乘以进货总数->eax
-		idiv	edx
-		mov	[shop2 + ebx + Goods.profitRate], eax
+		pop	esi				;取出进货价乘以进货总数
+		sub	eax, esi			;销售价乘以已售数量-进货价乘以进货总数->eax
+		imul	eax, 100
+		cdq
+		idiv	esi
+		mov	[shop2 + edi + Goods.profitRate], eax
 
 	.N2:	inc	ebx
 		dec	ecx
@@ -224,28 +236,28 @@ ChangeGoods:
 	
 	.N1:	
 		mov	esi, [edx + Goods.inPrice]
-		mov	[shop1 + ecx + Goods.inPrice], esi
+		mov	[shop1 + edi + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]
-		mov	[shop1 + ecx + Goods.outPrice], esi
+		mov	[shop1 + edi + Goods.outPrice], esi
 		mov	esi, [edx + Goods.quantity]
-		mov	[shop1 + ecx + Goods.quantity], esi
+		mov	[shop1 + edi + Goods.quantity], esi
 		mov	esi, [edx + Goods.sold]
-		mov	[shop1 + ecx + Goods.sold], esi
+		mov	[shop1 + edi + Goods.sold], esi
 		mov	esi, [edx + Goods.profitRate]
-		mov	[shop1 + ecx + Goods.profitRate], esi
+		mov	[shop1 + edi + Goods.profitRate], esi
 		jmp	.N3
 
 	.N2:	
 		mov	esi, [edx + Goods.inPrice]
-		mov	[shop2 + ecx + Goods.inPrice], esi
+		mov	[shop2 + edi + Goods.inPrice], esi
 		mov	esi, [edx + Goods.outPrice]
-		mov	[shop2 + ecx + Goods.outPrice], esi
+		mov	[shop2 + edi + Goods.outPrice], esi
 		mov	esi, [edx + Goods.quantity]
-		mov	[shop2 + ecx + Goods.quantity], esi
+		mov	[shop2 + edi + Goods.quantity], esi
 		mov	esi, [edx + Goods.sold]
-		mov	[shop2 + ecx + Goods.sold], esi
+		mov	[shop2 + edi + Goods.sold], esi
 		mov	esi, [edx + Goods.profitRate]
-		mov	[shop2 + ecx + Goods.profitRate], esi
+		mov	[shop2 + edi + Goods.profitRate], esi
 
 	.N3:	pop	es
 		pop	edi
@@ -276,20 +288,30 @@ Ranking:
 	mov	ebx, 1				;ebx记录排序进行到第几个商品,从第1个开始
 	mov	ecx, GOODSNUM			;将ecx设为shop2中商品的数量
 	.loop1:	mov	edx, ebx		;edx记录商品正在与rankPos中利润率排第几的商品的利润率进行比较
-		.loop2:	mov	esi, [rankPos + edx - 1]	;获得在rankPos中已排序好的商品的位置信息
-			mov	edi, [shop2 + esi + Goods.profitRate]
-			cmp	[shop2 + ebx + Goods.profitRate], edi		;将商品的利润率与已排序好的商品的利润率进行比较
+		.loop2:	mov	esp, edx
+			dec	esp
+			imul	esp, GOODSLENGTH
+			mov	esi, [rankPos + esp]	;获得在rankPos中已排序好的商品的位置信息
+			mov	esp, esi
+			imul	esp, GOODSLENGTH
+			mov	edi, [shop2 + esp + Goods.profitRate]
+			mov	esp, ebx
+			imul	esp, GOODSLENGTH
+			cmp	[shop2 + esp + Goods.profitRate], edi		;将商品的利润率与已排序好的商品的利润率进行比较
 			jl	.N1						;被比较的商品的利润率小于已排序的商品的利润率，结束比较
 			dec	edx
 			jnz	.loop2					;结果是获得商品应在rankPos中放第几个
 		;被比较的商品的位置信息ebx放入rankPos[edx]中，其它位置都往后移一个单位
 		.N1	mov	esi, ebx
-		.loop3:	mov	edi, [rankPos + esi - 1]
-			mov	[rankPos + esi], edi
+		.loop3:	mov	esp, esi
+			dec	esp
+			imul	esp, GOODSLENGTH
+			mov	edi, [rankPos + esp]
+			mov	[rankPos + esp - 32], edi
 			dec	esi
 			cmp	edx, esi
 			jl	.loop3
-		mov	[rankPos + esi], ebx
+		mov	[rankPos + esp - 32], ebx
 		
 		inc	ebx
 		dec	ecx
