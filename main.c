@@ -78,6 +78,7 @@ int main(void)
         case 2: //修改商品信息
             printf("请输入要修改的商品所在的商店序号:");
             scanf("%d", &shop);
+            getchar();
             if (shop != 1 && shop != 2)
             {
                 printf("错误的输入！目前只有两个商店：1,2！\n");
@@ -166,6 +167,7 @@ int ShowMenu(int isLogin)
         printf("--------------------Menu--------------------\n");
         printf("  请选择操作以继续(1-6):");
         scanf("%d", &select);
+        getchar();
         if (select < 1 || select > 6)
         {
             printf("错误的输入！按任意键继续。\n");
@@ -183,6 +185,7 @@ int ShowMenu(int isLogin)
         printf("--------------------Menu--------------------\n");
         printf("  请选择操作以继续(1-2):");
         scanf("%d", &select);
+        getchar();
         if (select == 1)
             return 1;
         else if(select == 2)
@@ -199,7 +202,7 @@ int ShowMenu(int isLogin)
 
 void ShowTitle()
 {
-printf("%13s%13s%13s%13s%13s%13s%13s\n", "商店", "商品名",
+    printf("%13s%13s%13s%13s%13s%13s%13s\n", "商店", "商品名",
         "进货价", "销售价", "进货总数", "销售总数", "利润率");
     return;
 }
@@ -237,6 +240,7 @@ int Find()
     char name[12];
     printf("请输入要查找的商品名称：");
     scanf("%s", name);
+    getchar();
     int pos;
     pos = FindGoods(name);
     return pos;
